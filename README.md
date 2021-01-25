@@ -13,11 +13,12 @@ A Snap that exports GTK+ and icon theme of Pop!_OS: [pop-gtk-theme](https://gith
 # pop-themes
 sudo snap install pop-themes
 ```
+### After-Installation
 
 ```bash
 #For Pop GTK2 for GTK2-snaps (need to be done everytime you install a new GTK2-snap app)
 
-for i in $(snap connections | grep gtk-common-themes:gtk-2-themes | awk '{print $2}'); do sudo snap connect $i yaru-colors:gtk-2-themes; done
+for i in $(snap connections | grep gtk-common-themes:gtk-2-themes | awk '{print $2}'); do sudo snap connect $i pop-themes:gtk-2-themes; done
 ```
 
 ```bash
