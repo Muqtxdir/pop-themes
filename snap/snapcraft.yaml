@@ -1,0 +1,73 @@
+name: pop-themes
+version: "5.3.1"
+base: core20
+architectures:
+  - all
+summary: Pop!_OS GTK and icon themes
+description: |
+  A snap that exports Pop!_OS GTK and icon themes.
+
+grade: stable
+confinement: strict
+
+slots:
+  gtk-2-themes:
+    interface: content
+    source:
+      read:
+        - $SNAP/share/gtk2/Pop
+        - $SNAP/share/gtk2/Pop-dark
+  gtk-3-themes:
+    interface: content
+    source:
+      read:
+        - $SNAP/share/themes/Pop
+        - $SNAP/share/themes/Pop-dark
+  icon-themes:
+    interface: content
+    source:
+      read:
+        - $SNAP/share/icons/Pop
+
+parts: 
+  pop-gtk-theme:
+    after: [utils]
+    source: https://github.com/pop-os/gtk-theme.git
+    source-tag: v5.3.1
+    plugin: meson
+    meson-parameters: ["--prefix=/", "-Dgnome-shell=false", "-Dgnome-shell-gresource=false", "-Dsounds=false"]
+    build-packages: ["sassc", "libglib2.0-dev"]
+    override-build: |
+      snapcraftctl build
+      $SNAPCRAFT_STAGE/split-gtk-theme.sh $SNAPCRAFT_PART_INSTALL
+    stage:
+      - share/gtk2
+      - share/themes
+      
+    build-packages:
+      - libgtk-3-dev
+      - libglib2.0-dev
+      - gnome-common
+      
+  pop-icon-theme:
+    after: [utils]
+    source: https://github.com/pop-os/icon-theme.git
+    source-depth: 1
+    plugin: meson
+    meson-parameters: ["--prefix=/", "-Dgnome-shell=false", "-Dgnome-shell-gresource=false", "-Dsounds=false"]
+    build-packages: ["sassc", "libglib2.0-dev"]
+    override-build: |
+      snapcraftctl build
+      $SNAPCRAFT_STAGE/update-icon-cache.sh $SNAPCRAFT_PART_INSTALL/share/icons
+    stage:
+      - share/icons
+      
+  utils:
+    plugin: dump
+    source: utils
+    prime:
+      - -*
+    build-packages:
+      - try: [gtk-update-icon-cache]
+      - else: [libgtk-3-bin]
+
