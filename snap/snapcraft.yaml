@@ -1,5 +1,5 @@
 name: pop-themes
-version: "5.3.1"
+adopt-info: pop-gtk-theme
 base: core20
 architectures:
   - all
@@ -28,15 +28,20 @@ slots:
     source:
       read:
         - $SNAP/share/icons/Pop
+  sound-themes:
+    interface: content
+    source:
+      read:
+        - $SNAP/share/sounds/Pop
 
 parts: 
   pop-gtk-theme:
     after: [utils]
     source: https://github.com/pop-os/gtk-theme.git
-    source-tag: v5.3.1
+    source-commit: 5ab6f1e40aa7067795655cb4d1a1703dc7ce93ca
     source-type: git
     plugin: meson
-    meson-parameters: ["--prefix=/", "-Dgnome-shell=false", "-Dgnome-shell-gresource=false", "-Dsounds=false"]
+    meson-parameters: ["--prefix=/", "-Dgnome-shell=false", "-Dgnome-shell-gresource=false"]
     build-packages:
       - sassc
       - libgtk-3-dev
@@ -46,8 +51,10 @@ parts:
     override-build: |
       sed -i.bak -e "s|subdir('gnome-shell')||g" meson.build
       snapcraftctl build
+      snapcraftctl set-version "$(git describe --tags 2>/dev/null || echo 1.0)"
       $SNAPCRAFT_STAGE/split-gtk-theme.sh $SNAPCRAFT_PART_INSTALL
     stage:
+      - share/sounds
       - share/gtk2
       - share/themes
     
